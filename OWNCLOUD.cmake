@@ -14,3 +14,4 @@ set( MAC_INSTALLER_BACKGROUND_FILE "${CMAKE_SOURCE_DIR}/admin/osx/installer-back
 # set( THEME_INCLUDE          "${OEM_THEME_DIR}/mytheme.h" )
 # set( APPLICATION_LICENSE    "${OEM_THEME_DIR}/license.txt )
 
+set( OSX_INSTALLER_LOGO "resources/owncloud_logo_blue.png" )

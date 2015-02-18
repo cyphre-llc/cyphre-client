@@ -1,0 +1,5 @@
+.vagrant/*
+build-win32/*
+build-mac/*
+install/*
+!*.sh

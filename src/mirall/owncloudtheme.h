@@ -41,6 +41,8 @@ public:
     QColor  wizardHeaderBackgroundColor() const Q_DECL_OVERRIDE;
     QColor  wizardHeaderTitleColor() const Q_DECL_OVERRIDE;
     QPixmap wizardHeaderLogo() const Q_DECL_OVERRIDE;
+
+    QString overrideServerUrl() const Q_DECL_OVERRIDE;
 private:
 
 

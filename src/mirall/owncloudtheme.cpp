@@ -39,7 +39,7 @@ ownCloudTheme::ownCloudTheme() :
 
 QString ownCloudTheme::configFileName() const
 {
-    return QLatin1String("owncloud.cfg");
+    return QLatin1String("cyphre.cfg");
 }
 
 QString ownCloudTheme::about() const
@@ -72,7 +72,7 @@ QIcon ownCloudTheme::trayFolderIcon( const QString& ) const
 
 QIcon ownCloudTheme::applicationIcon( ) const
 {
-    return themeIcon( QLatin1String("owncloud-icon") );
+    return themeIcon( QLatin1String("cyphre-icon") );
 }
 
 #endif
@@ -114,14 +114,18 @@ QPixmap ownCloudTheme::wizardHeaderLogo() const
 
 QString ownCloudTheme::appName() const
 {
-    return QLatin1String("ownCloud");
+    return QLatin1String("Cyphre");
 }
 
 QString ownCloudTheme::appNameGUI() const
 {
-    return QLatin1String("ownCloud");
+    return QLatin1String("Cyphre");
 }
 
+QString ownCloudTheme::overrideServerUrl() const
+{
+    return QLatin1String("https://files.cyphre.com");
+}
 
 }
 

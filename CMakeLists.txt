@@ -143,7 +143,7 @@ configure_file(test/test_journal.db "${CMAKE_BINARY_DIR}/test/test_journal.db" C
 
 # Copy that logo, the installer uses it later
 if(BUILD_OWNCLOUD_OSX_BUNDLE)
-    install(FILES resources/owncloud_logo_blue.png DESTINATION ${OWNCLOUD_OSX_BUNDLE}/Contents/Resources/)
+    install(FILES ${OSX_INSTALLER_LOGO} DESTINATION ${OWNCLOUD_OSX_BUNDLE}/Contents/Resources/)
 endif()
 
 include(OwnCloudCPack.cmake)
