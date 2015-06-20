@@ -7,7 +7,7 @@
 *csync_timedif.ctmp*
 .csync_journal.db
 .csync_journal.db.ctmp
-.owncloudsync.log
+.cyphresync.log
 
 .*.sw?
 .*.*sw?

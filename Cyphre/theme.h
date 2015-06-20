@@ -39,7 +39,7 @@ public:
 
     QString configFileName() const Q_DECL_OVERRIDE
     {
-	return QLatin1String("cyphre.cfg");
+	return QLatin1String("cyphre-v2.cfg");
     }
 
     QString about() const Q_DECL_OVERRIDE
@@ -52,7 +52,7 @@ public:
                "<p>Licensed under the GNU General Public License (GPL) Version 2.0<br/>"
                "ownCloud and the ownCloud Logo are registered trademarks of ownCloud, "
                "Inc. in the United States, other countries, or both.</p>"
-               "<p>All Cyphre logos and the Cyphre name are Copyright Servergy, Inc.</p>"
+               "<p>All Cyphre logos and the Cyphre name are Copyright Cyphre, LLC.</p>"
                )
             .arg(MIRALL_VERSION_STRING)
             .arg("http://" MIRALL_STRINGIFY(APPLICATION_DOMAIN))
@@ -93,7 +93,7 @@ public:
 
     QString overrideServerUrl() const Q_DECL_OVERRIDE
     {
-        return QLatin1String("https://files.cyphre.com");
+        return QLatin1String("https://app.cyphre.com");
     }
 
     virtual QString gitSHA1() const
