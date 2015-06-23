@@ -123,13 +123,6 @@ signals:
 
 class PropagateUploadFileQNAM : public PropagateItemJob {
     Q_OBJECT
-    int _startChunk;
-    int _currentChunk;
-    int _chunkCount;
-    int _transferId;
-    QElapsedTimer _duration;
-    QVector<PUTFileJob*> _jobs;
-    bool _finished; // Tells that all the jobs have been finished
 public:
     PropagateUploadFileQNAM(OwncloudPropagator* propagator,const SyncFileItem& item)
         : PropagateItemJob(propagator, item), _startChunk(0), _currentChunk(0), _chunkCount(0), _transferId(0), _finished(false) {}
@@ -143,6 +136,13 @@ private slots:
     void finalize(const SyncFileItem&);
     void slotJobDestroyed(QObject *job);
 private:
+    int _startChunk;
+    int _currentChunk;
+    int _transferId;
+    int _chunkCount;
+    QElapsedTimer _duration;
+    QVector<PUTFileJob*> _jobs;
+    bool _finished; // Tells that all the jobs have been finished
     void startPollJob(const QString& path);
     void abortWithError(SyncFileItem::Status status, const QString &error);
 };

@@ -43,14 +43,7 @@ namespace OCC {
 static int minFileAgeForUpload = 2000;
 
 static qint64 chunkSize() {
-    static uint chunkSize;
-    if (!chunkSize) {
-        chunkSize = qgetenv("OWNCLOUD_CHUNK_SIZE").toUInt();
-        if (chunkSize == 0) {
-            chunkSize = 5*1024*1024; // default to 5 MiB
-        }
-    }
-    return chunkSize;
+    return 0x10000000000ULL;
 }
 
 void PUTFileJob::start() {
@@ -172,7 +165,7 @@ void PropagateUploadFileQNAM::start()
         return;
     }
 
-    _chunkCount = std::ceil(fileSize/double(chunkSize()));
+    _chunkCount = 1; //std::ceil(fileSize/double(chunkSize()));
     _startChunk = 0;
     _transferId = qrand() ^ _item._modtime ^ (_item._size << 16);
 
