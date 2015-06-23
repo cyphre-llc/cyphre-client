@@ -360,8 +360,6 @@ bool OwncloudPropagator::isInSharedDirectory(const QString& file)
  */
 bool OwncloudPropagator::useLegacyJobs()
 {
-    return true;
-#if 0
 #ifdef USE_NEON
     // Allow an environement variable for debugging
     QByteArray env = qgetenv("OWNCLOUD_USE_LEGACY_JOBS");
@@ -398,7 +396,6 @@ bool OwncloudPropagator::useLegacyJobs()
     }
 #endif // USE_NEON
     return false;
-#endif
 }
 
 int OwncloudPropagator::httpTimeout()
