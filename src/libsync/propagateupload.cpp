@@ -526,7 +526,7 @@ void PropagateUploadFileQNAM::slotPutFinished()
     // the following code only happens after all chunks were uploaded.
     _finished = true;
     // the file id should only be empty for new files up- or downloaded
-    QByteArray fid = job->reply()->rawHeader("OC-FileID");
+    QByteArray fid = job->reply()->rawHeader("X-Cyphre-FileId");
     if( !fid.isEmpty() ) {
         if( !_item._fileId.isEmpty() && _item._fileId != fid ) {
             qDebug() << "WARN: File ID changed!" << _item._fileId << fid;
@@ -539,10 +539,8 @@ void PropagateUploadFileQNAM::slotPutFinished()
 
     _item._responseTimeStamp = job->responseTimestamp();
 
-    if (job->reply()->rawHeader("X-OC-MTime") != "accepted") {
-        // X-OC-MTime is supported since owncloud 5.0.   But not when chunking.
-        // Normaly Owncloud 6 always put X-OC-MTime
-        qWarning() << "Server do not support X-OC-MTime" << job->reply()->rawHeader("X-OC-MTime");
+    if (job->reply()->rawHeader("X-Cyphre-MTime") != "accepted") {
+        qWarning() << "Server does not support X-Cyphre-MTime" << job->reply()->rawHeader("X-Cyphre-MTime");
 #ifdef USE_NEON
         PropagatorJob *newJob = new UpdateMTimeAndETagJob(_propagator, _item);
         QObject::connect(newJob, SIGNAL(completed(SyncFileItem)), this, SLOT(finalize(SyncFileItem)));

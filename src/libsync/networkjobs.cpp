@@ -334,21 +334,7 @@ void LsColJob::start()
     QNetworkRequest req;
     req.setRawHeader("Depth", "1");
     // FIXME The results are delivered without namespace, if this is ever a problem we need to check it..
-    QByteArray xml("<?xml version=\"1.0\" ?>\n"
-                   "<d:propfind xmlns:d=\"DAV:\" xmlns:oc=\"http://owncloud.org/ns\">\n"
-                   "  <d:prop>\n"
-                   "    <d:resourcetype/>\n"
-                   "    <d:quota-used-bytes/>\n"
-                   "    <d:getlastmodified/>\n"
-                   "    <d:getcontentlength/>\n"
-                   "    <d:resourcetype/>\n"
-                   "    <d:getetag/>\n"
-                   "    <oc:id/>\n"
-                   "    <oc:downloadURL/>\n"
-                   "    <oc:dDC/>\n"
-                   "    <oc:permissions/>\n"
-                   "  </d:prop>\n"
-                   "</d:propfind>\n");
+    QByteArray xml("<?xml version=\"1.0\" encoding=\"utf-8\" ?><propfind xmlns=\"DAV:\"><allprop/></propfind>\n");
     QBuffer *buf = new QBuffer(this);
     buf->setData(xml);
     buf->open(QIODevice::ReadOnly);
