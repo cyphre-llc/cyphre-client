@@ -93,7 +93,7 @@ public:
 
     QString overrideServerUrl() const Q_DECL_OVERRIDE
     {
-        return QLatin1String("https://app.cyphre.com");
+        return QLatin1String("https://home.cyphre.com");
     }
 
     virtual QString gitSHA1() const
