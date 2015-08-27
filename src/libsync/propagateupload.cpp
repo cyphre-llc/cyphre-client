@@ -152,8 +152,7 @@ void PropagateUploadFileQNAM::start()
 
     // Update the mtime and size, it might have changed since discovery.
     _item._modtime = FileSystem::getModTime(fi.absoluteFilePath());
-    quint64 fileSize = FileSystem::getSize(fi.absoluteFilePath());
-    _item._size = fileSize;
+    _item._size = FileSystem::getSize(fi.absoluteFilePath());
 
     // But skip the file if the mtime is too close to 'now'!
     // That usually indicates a file that is still being changed
@@ -165,7 +164,7 @@ void PropagateUploadFileQNAM::start()
         return;
     }
 
-    _chunkCount = 1; //std::ceil(fileSize/double(chunkSize()));
+    _chunkCount = 1;
     _startChunk = 0;
     _transferId = qrand() ^ _item._modtime ^ (_item._size << 16);
 
@@ -201,27 +200,14 @@ UploadDevice::~UploadDevice() {
     }
 }
 
-bool UploadDevice::prepareAndOpen(const QString& fileName, qint64 start, qint64 size)
+bool UploadDevice::prepareAndOpen(const QString& fileName)
 {
-    _data.clear();
-    _read = 0;
+    file.setFileName(fileName);
+    _filesize = FileSystem::getSize(fileName);
 
-    QFile file(fileName);
     QString openError;
     if (!FileSystem::openFileSharedRead(&file, &openError)) {
         setErrorString(openError);
-        return false;
-    }
-
-    size = qMin(FileSystem::getSize(fileName), size);
-    _data.resize(size);
-    if (!file.seek(start)) {
-        setErrorString(file.errorString());
-        return false;
-    }
-    auto read = file.read(_data.data(), size);
-    if (read != size) {
-        setErrorString(file.errorString());
         return false;
     }
 
@@ -235,15 +221,15 @@ qint64 UploadDevice::writeData(const char* , qint64 ) {
 }
 
 qint64 UploadDevice::readData(char* data, qint64 maxlen) {
-    //qDebug() << Q_FUNC_INFO << maxlen << _read << _size << _bandwidthQuota;
-    if (_data.size() - _read <= 0) {
+    if (_filesize - _read <= 0) {
         // at end
         if (_bandwidthManager) {
             _bandwidthManager->unregisterUploadDevice(this);
         }
         return -1;
     }
-    maxlen = qMin(maxlen, _data.size() - _read);
+
+    maxlen = qMin(maxlen, _filesize - _read);
     if (maxlen == 0) {
         return 0;
     }
@@ -258,8 +244,15 @@ qint64 UploadDevice::readData(char* data, qint64 maxlen) {
         }
         _bandwidthQuota -= maxlen;
     }
-    std::memcpy(data, _data.data()+_read, maxlen);
+
+    auto read = file.read(data, maxlen);
+    if (read != maxlen) {
+        setErrorString(file.errorString());
+        return -1;
+    }
+
     _read += maxlen;
+
     return maxlen;
 }
 
@@ -273,19 +266,19 @@ void UploadDevice::slotJobUploadProgress(qint64 sent, qint64 t)
 }
 
 bool UploadDevice::atEnd() const {
-    return _read >= _data.size();
+    return _read >= _filesize;
 }
 
 qint64 UploadDevice::size() const{
 //    qDebug() << this << Q_FUNC_INFO << _size;
-    return _data.size();
+    return _filesize;
 }
 
 qint64 UploadDevice::bytesAvailable() const
 {
 //    qDebug() << this << Q_FUNC_INFO << _size << _read << QIODevice::bytesAvailable()
 //             <<   _size - _read + QIODevice::bytesAvailable();
-    return _data.size() - _read + QIODevice::bytesAvailable();
+    return _filesize - _read + QIODevice::bytesAvailable();
 }
 
 // random access, we can seek
@@ -295,9 +288,6 @@ bool UploadDevice::isSequential() const{
 
 bool UploadDevice::seek ( qint64 pos ) {
     if (! QIODevice::seek(pos)) {
-        return false;
-    }
-    if (pos < 0 || pos > _data.size()) {
         return false;
     }
     _read = pos;
@@ -334,13 +324,9 @@ void PropagateUploadFileQNAM::startNextChunk()
         // We return now and when the _jobs will be finished we will proceed the last chunk
         return;
     }
-    quint64 fileSize = _item._size;
     QMap<QByteArray, QByteArray> headers;
-    headers["OC-Total-Length"] = QByteArray::number(fileSize);
-    headers["OC-Async"] = "1";
-    headers["OC-Chunk-Size"]= QByteArray::number(quint64(chunkSize()));
     headers["Content-Type"] = "application/octet-stream";
-    headers["X-OC-Mtime"] = QByteArray::number(qint64(_item._modtime));
+    headers["X-Cyphre-MTime"] = QByteArray::number(qint64(_item._modtime));
     if (!_item._etag.isEmpty() && _item._etag != "empty_etag" &&
             _item._instruction != CSYNC_INSTRUCTION_NEW  // On new files never send a If-Match
             ) {
@@ -352,27 +338,8 @@ void PropagateUploadFileQNAM::startNextChunk()
     QString path = _item._file;
 
     UploadDevice *device = new UploadDevice(&_propagator->_bandwidthManager);
-    qint64 chunkStart = 0;
-    qint64 currentChunkSize = fileSize;
-    if (_chunkCount > 1) {
-        int sendingChunk = (_currentChunk + _startChunk) % _chunkCount;
-        // XOR with chunk size to make sure everything goes well if chunk size change between runs
-        uint transid = _transferId ^ chunkSize();
-        path +=  QString("-chunking-%1-%2-%3").arg(transid).arg(_chunkCount).arg(sendingChunk);
 
-        headers["OC-Chunked"] = "1";
-
-        chunkStart = chunkSize() * quint64(sendingChunk);
-        currentChunkSize = chunkSize();
-        if (sendingChunk == _chunkCount - 1) { // last chunk
-            currentChunkSize = (fileSize % chunkSize());
-            if( currentChunkSize == 0 ) { // if the last chunk pretents to be 0, its actually the full chunk size.
-                currentChunkSize = chunkSize();
-            }
-        }
-    }
-
-    if (! device->prepareAndOpen(_propagator->getFilePath(_item._file), chunkStart, currentChunkSize)) {
+    if (! device->prepareAndOpen(_propagator->getFilePath(_item._file))) {
         qDebug() << "ERR: Could not prepare upload device: " << device->errorString();
         // Soft error because this is likely caused by the user modifying his files while syncing
         abortWithError( SyncFileItem::SoftError, device->errorString() );

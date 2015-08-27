@@ -30,7 +30,7 @@ public:
     ~UploadDevice();
 
     /** Reads the data from the file and opens the device */
-    bool prepareAndOpen(const QString& fileName, qint64 start, qint64 size);
+    bool prepareAndOpen(const QString& fileName);
 
     qint64 writeData(const char* , qint64 ) Q_DECL_OVERRIDE;
     qint64 readData(char* data, qint64 maxlen) Q_DECL_OVERRIDE;
@@ -47,10 +47,10 @@ public:
     void giveBandwidthQuota(qint64 bwq);
 private:
 
-    // The file data
-    QByteArray _data;
-    // Position in the data
-    qint64 _read;
+    // Position in the data and total filesize
+    qint64 _read, _filesize;
+    // The file we are reading from
+    QFile file;
 
     // Bandwidth manager related
     QPointer<BandwidthManager> _bandwidthManager;
